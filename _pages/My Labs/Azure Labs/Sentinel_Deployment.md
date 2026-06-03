@@ -1,7 +1,7 @@
 ---
 title: "Sentinel Deployment"
 date: "2026-05-01"
-thumbnail: "/assets/img/thumbnail/bricks.webp"
+thumbnail: "assets/img/thumbnail/azure-sentinel_Thumb.png"
 ---
 
 # **Objective:** 
