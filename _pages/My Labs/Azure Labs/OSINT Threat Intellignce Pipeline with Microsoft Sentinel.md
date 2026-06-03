@@ -133,6 +133,7 @@ SIEM: Microsoft Sentinel</code>
 
     Note: The analytics rule relies on specific threat intelligence feeds. Given the narrow targeting of those indicators, incident generation is not guaranteed under normal test conditions.
 </code>
+
 # Azure Services & Tools Used
 <code>
     Virtual Machines (Ubuntu)
