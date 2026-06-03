@@ -10,12 +10,12 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
 
 # Technical Architecture
 ---
-* Cloud Platform: Microsoft Azure (free trial & free services tier)
-* Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
-* Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
-* Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
-* Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
-* SIEM: Microsoft Sentinel
+    Cloud Platform: Microsoft Azure (free trial & free services tier)
+    Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
+    Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
+    Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
+    Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
+    SIEM: Microsoft Sentinel
 
 # Implementation Steps
 ---
@@ -122,6 +122,7 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
     Sentinel receiving threat intelligence indicators
     KQL rule active for SSH brute-force detection
     Tuning indicator filters to improve detection rate 
+
 Note: The analytics rule relies on specific threat intelligence feeds. Given the narrow targeting of those indicators, incident generation is not guaranteed under normal test conditions.
 
 
