@@ -1,7 +1,7 @@
 ---
 title: "OSINT Threat Intellignce Pipeline with Microsoft Sentinel"
 date: "2026-05-30"
-thumbnail: "/assets/img/thumbnail/bricks.webp"
+thumbnail: "assets/img/thumbnail/misp2sentinel_thumb.png"
 ---
 
 # Overview
