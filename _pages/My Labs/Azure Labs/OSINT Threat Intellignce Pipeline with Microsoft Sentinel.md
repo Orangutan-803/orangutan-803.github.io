@@ -26,9 +26,7 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
 - Redeployed with a higher-core VM to meet computational demands
 <img src="https://github.com/user-attachments/assets/fe2b1009-8970-4259-8d87-e55eadb62eae" />
 - Configured budget alerts to prevent cost surprises after a credit glitch (Azure free credits temporarily disappeared)
-
 <img src="https://github.com/user-attachments/assets/61d36ad7-b025-49b1-a890-1d8e45ca7716" />
-
 <img src="https://github.com/user-attachments/assets/3289aaf4-e1db-4386-9f23-4916ccffe2bd" />
 
 ## 2.MISP Deployment (Docker-based)
@@ -111,13 +109,12 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
 
 # Key Technical Decisions & Rationale
 ---
-<code>
     Docker on VM: Isolation + resource efficiency. Avoids dedicating a full VM to MISP, reduces Azure subscription costs.
     MISP (open-source): Free, well-documented, ideal for learning threat intelligence APIs and Python integration.
     Python script over Azure Functions: Free trial limitations prevented Function App deployment; script co-located on MISP server ensures reliability.
     Reduced event limit (500 → 200): Memory constraint mitigation on low-tier VM.
     Budget alerts: Proactive cost control after Azure credit anomaly.
-</code>
+
 
 # Current Status & Next Steps
 ---
