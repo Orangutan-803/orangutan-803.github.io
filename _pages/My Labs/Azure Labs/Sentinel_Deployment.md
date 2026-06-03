@@ -11,7 +11,7 @@ Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both 
 
 ## 1. **Infrastructure Setup**
 
--    Created an Ubuntu VM (`non-vulnerable-01`) with OpenSSH port 22 open to the internet, placed in resource group `orangutan-labs`.
+-    Created an Ubuntu VM `non-vulnerable-01` with OpenSSH port 22 open to the internet, placed in resource group `orangutan-labs`.
 
    <img src="https://github.com/user-attachments/assets/342cf9d0-00a1-4bba-801a-9912fb5c574d" />
 
@@ -24,7 +24,7 @@ Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both 
 
 ## 2. **Sentinel Deployment**
 
-- Created a Log Analytics workspace (`monkey-watch`) and enabled Azure Sentinel.
+- Created a Log Analytics workspace `monkey-watch` and enabled Azure Sentinel.
 
 <img src="https://github.com/user-attachments/assets/5154298d-4418-437b-bb0c-3c9db94bf504" />
 
