@@ -4,11 +4,12 @@ date: "2026-05-01"
 thumbnail: "/assets/img/thumbnail/bricks.webp"
 ---
 
-# **Objective:** Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both failed and successful) from a Linux Ubuntu VM exposed to the internet.
+# **Objective:** 
+Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both failed and successful) from a Linux Ubuntu VM exposed to the internet.
 
-### Implementation Steps
+# Implementation Steps
 
-1. **Infrastructure Setup**
+## 1. **Infrastructure Setup**
 
 -    Created an Ubuntu VM (`non-vulnerable-01`) with OpenSSH port 22 open to the internet, placed in resource group `orangutan-labs`.
 
@@ -21,7 +22,7 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 
 
 
-2. **Sentinel Deployment**
+## 2. **Sentinel Deployment**
 
 - Created a Log Analytics workspace (`monkey-watch`) and enabled Azure Sentinel.
 
@@ -30,7 +31,7 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 <img src="https://github.com/user-attachments/assets/3b467981-3575-419d-b827-03afaac3b323" />
 
 
-3. **Log Collection Configuration**
+## 3. **Log Collection Configuration**
 
 - Used Syslog with Azure Monitor Agent (AMA) (recommended by DeepSeek AI for its general-purpose, low-setup design).
 
@@ -49,7 +50,7 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 <img src="https://github.com/user-attachments/assets/6f7bde31-9623-4b43-820e-8bc8ec8b99d2" />
 
 
-4. **Troubleshooting & Refinement using **
+## 4. **Troubleshooting & Refinement using **
 
 - Initial issue: No syslog data appeared in Sentinel after 20+ minutes (only heartbeat logs).
 
@@ -93,7 +94,7 @@ Result: Within 30 minutes, over 1,000 syslog events ingested, and the Syslog tab
 
 <img src="https://github.com/user-attachments/assets/d9cbd087-5539-4e91-a69e-2a65692b57c0" />
 
-5. **Alerting Rules**
+## 5. **Alerting Rules**
 
 - Observed multiple failed SSH login attempts from various IPs (e.g., Romania) hitting the exposed VM.
 
@@ -116,7 +117,7 @@ Result: Within 30 minutes, over 1,000 syslog events ingested, and the Syslog tab
 <img src="https://github.com/user-attachments/assets/37ca5064-5b3b-4a6f-a16a-6444d81e627b" />
 
 
-### Key Learnings
+## Key Learnings
 
 - Hands-on familiarity with Azure resource hierarchy (Resource Groups → VMs → Log Analytics → Sentinel).
 - Practical experience integrating a Linux VM with Sentinel via Syslog + AMA + DCR.
@@ -125,7 +126,7 @@ Result: Within 30 minutes, over 1,000 syslog events ingested, and the Syslog tab
 - Used Azure observability agent to query live logs and verify table creation, speeding up root-cause analysis.
 - Real-world observation: public SSH ports attract almost immediate intrusion attempts, underscoring the value of proactive monitoring.
 
-### Future Refinements
+## Future Refinements
 
 - Fine-tune DCR filters to exclude low‑severity or irrelevant syslog messages while retaining security‑relevant events.
 - Automate response actions (e.g., IP blocking) based on Sentinel alerts.
