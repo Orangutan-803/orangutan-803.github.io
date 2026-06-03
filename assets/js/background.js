@@ -1,36 +1,37 @@
 // Deep Space / Pillars of Creation Style
-// Slow glowing stars, white constellation lines, dark nebula backdrop
+// Mouse parallax on background, stars, and constellations
+// Faster constellation drawing
 
-var particleCount = 80;              // more stars for depth
-var flareCount = 30;                // soft nebula glows
-var motion = 0.03;                  // very slow drift
-var tilt = 0.02;                    // subtle mouse tilt
-var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"]; // white to pale blue/peach
-var particleSizeBase = 1.5;         // smaller stars
-var particleSizeMultiplier = 0.6;   // depth scaling
-var flareSizeBase = 150;            // big soft glows
+var particleCount = 80;
+var flareCount = 30;
+var motion = 0.03;
+var tilt = 0.02;
+var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"];
+var particleSizeBase = 1.5;
+var particleSizeMultiplier = 0.6;
+var flareSizeBase = 150;
 var flareSizeMultiplier = 200;
 var lineWidth = 1.2;
-var linkChance = 35;                // moderate chance to start a new constellation line
+var linkChance = 45;                 // slightly higher for more constellations
 var linkLengthMin = 3;
-var linkLengthMax = 5;              // short, elegant constellations
-var linkOpacity = 0.25;             // very faint white
-var linkFade = 180;                 // long, slow fade out
-var linkSpeed = 0.4;               // very slow drawing speed
+var linkLengthMax = 5;
+var linkOpacity = 0.25;
+var linkFade = 180;
+var linkSpeed = 0.9;                // faster constellation drawing (was 0.4)
 var glareAngle = -45;
-var glareOpacityMultiplier = 0.05;  // subtle star glint
+var glareOpacityMultiplier = 0.05;
 var renderParticles = true;
 var renderParticleGlare = true;
 var renderFlares = true;
 var renderLinks = true;
-var renderMesh = false;             // no wireframe mesh
+var renderMesh = false;
 var flicker = true;
-var flickerSmoothing = 50;          // very slow flicker (smoother, slower)
-var blurSize = 6;                   // soft glow
+var flickerSmoothing = 50;
+var blurSize = 6;
 var orbitTilt = true;
 var randomMotion = true;
 var noiseLength = 2000;
-var noiseStrength = 0.8;            // gentle wandering
+var noiseStrength = 0.8;
 
 var canvas = document.getElementById("stars");
 var context = canvas.getContext("2d");
@@ -51,14 +52,22 @@ var particles = [];
 var flares = [];
 var EPSILON = 1 / 1048576;
 
-// Set dark background for the canvas (nebula-like)
-function setDarkBackground() {
-    // Create a radial gradient for nebula effect
-    var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, "#03030f");
-    gradient.addColorStop(0.5, "#060618");
-    gradient.addColorStop(1, "#010108");
-    context.fillStyle = gradient;
+// Mouse parallax background gradient
+function setParallaxBackground() {
+    // Normalize mouse position (-1 to 1)
+    var offsetX = (mouse.x / canvas.width - 0.5) * 0.2;   // subtle shift
+    var offsetY = (mouse.y / canvas.height - 0.5) * 0.2;
+    
+    var grad = context.createLinearGradient(
+        canvas.width * (0.5 + offsetX), 
+        canvas.height * (0.5 + offsetY),
+        canvas.width * (1 + offsetX), 
+        canvas.height * (1 + offsetY)
+    );
+    grad.addColorStop(0, "#03030f");
+    grad.addColorStop(0.5, "#080818");
+    grad.addColorStop(1, "#010108");
+    context.fillStyle = grad;
     context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -158,7 +167,7 @@ function init() {
 }
 
 function render() {
-    if (randomMotion && (++n >= noiseLength && (n = 0), nPos = noisePoint(n)), context.clearRect(0, 0, canvas.width, canvas.height), setDarkBackground(), blurSize > 0 && (context.shadowBlur = blurSize, context.shadowColor = "rgba(100,150,255,0.5)"), renderParticles)
+    if (randomMotion && (++n >= noiseLength && (n = 0), nPos = noisePoint(n)), context.clearRect(0, 0, canvas.width, canvas.height), setParallaxBackground(), blurSize > 0 && (context.shadowBlur = blurSize, context.shadowColor = "rgba(100,150,255,0.5)"), renderParticles)
         for (var t = 0; t < particleCount; t++) particles[t].render();
     if (renderLinks) {
         if (random(0, linkChance) == linkChance) {
@@ -180,7 +189,7 @@ function startLink(t, e) { links.push(new Link(t, e)); }
 var Particle = function() {
     this.x = random(-0.1, 1.1, true);
     this.y = random(-0.1, 1.1, true);
-    this.z = random(0, 3.5);          // less extreme depth
+    this.z = random(0, 3.5);
     this.color = randomColor(colorPalette);
     this.opacity = random(0.3, 0.8, true);
     this.flicker = 0;
@@ -192,7 +201,7 @@ Particle.prototype.render = function() {
     var e = (this.z * particleSizeMultiplier + particleSizeBase) * (sizeRatio() / 1000);
     var i = this.opacity;
     if (flicker) {
-        var s = random(-0.2, 0.2, true);  // subtle flicker
+        var s = random(-0.2, 0.2, true);
         this.flicker += (s - this.flicker) / flickerSmoothing;
         if (this.flicker > 0.25) this.flicker = 0.25;
         if (this.flicker < -0.25) this.flicker = -0.25;
@@ -219,7 +228,6 @@ var Flare = function() {
     this.x = random(-0.2, 1.2, true);
     this.y = random(-0.2, 1.2, true);
     this.z = random(0, 1.5);
-    // Nebula colors: deep reds, cyans, purples
     var nebulaColors = ["#2a1a3a", "#1a2a4a", "#3a1a2a", "#1a3a2a", "#2a2a4a"];
     this.color = randomColor(nebulaColors);
     this.opacity = random(0.005, 0.025, true);
@@ -321,7 +329,7 @@ Link.prototype.drawLine = function(t, e) {
         context.globalAlpha = e;
         context.beginPath();
         for (var i = 0; i < t.length - 1; i++) context.moveTo(t[i][0], t[i][1]), context.lineTo(t[i + 1][0], t[i + 1][1]);
-        context.strokeStyle = "#ffffff";   // pure white constellation lines
+        context.strokeStyle = "#ffffff";
         context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
