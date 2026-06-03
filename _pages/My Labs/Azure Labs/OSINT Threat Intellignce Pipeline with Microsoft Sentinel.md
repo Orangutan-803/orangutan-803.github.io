@@ -4,10 +4,10 @@ date: "2026-05-30"
 thumbnail: "/assets/img/thumbnail/bricks.webp"
 ---
 
-# Overview:
+# Overview
 Integrated open-source threat intelligence into Microsoft Sentinel by deploying a self-hosted MISP (Malware Information Sharing Platform) instance on Azure. Built a real-time pipeline to map Sentinel logs with OSINT feeds using Python and API calls.
 
-# Technical Architecture:
+# Technical Architecture
 
 'Cloud Platform: Microsoft Azure (free trial & free services tier)
 Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
@@ -18,7 +18,7 @@ SIEM: Microsoft Sentinel '
 
 # Implementation Steps
 
-1.Azure Infrastructure Provisioning
+## 1.Azure Infrastructure Provisioning
 
     • Used Azure CLI for all resource management
     
@@ -34,7 +34,7 @@ SIEM: Microsoft Sentinel '
 
 <img src="https://github.com/user-attachments/assets/3289aaf4-e1db-4386-9f23-4916ccffe2bd" />
 
-2.MISP Deployment (Docker-based)
+## 2.MISP Deployment (Docker-based)
 
     • Installed Docker on Ubuntu VM
 
@@ -58,7 +58,7 @@ SIEM: Microsoft Sentinel '
 
 <img src="https://github.com/user-attachments/assets/e2752aaf-43ca-4d4a-92a8-5abfd19ac14e" />
     
-3.Feed Ingestion
+## 3.Feed Ingestion
 
     • Copied public threat intelligence feeds into local MISP instance
 
@@ -74,7 +74,7 @@ SIEM: Microsoft Sentinel '
 
 <img src="https://github.com/user-attachments/assets/629e167f-41f4-404b-aabf-9350489f15de" />
     
-4.Sentinel Integration
+## 4.Sentinel Integration
 
     • Installed MISP2Sentinel Data connector from Content hub
 
@@ -132,7 +132,7 @@ SIEM: Microsoft Sentinel '
 
 <img src="https://github.com/user-attachments/assets/d0914728-fcc2-4202-9461-71c50f638b4d" />
             
-5.Troubleshooting & Optimization
+## 5.Troubleshooting & Optimization
     • Issue: No logs appearing in Sentinel after 12+ hours
 
 <img src="https://github.com/user-attachments/assets/e8cf21e3-7edd-4390-a132-422617683fe5" />
@@ -156,7 +156,7 @@ SIEM: Microsoft Sentinel '
 <img src="https://github.com/user-attachments/assets/4c39c870-4a4a-4608-a362-edcfe7b0c4cc" />
 
     
-6.Detection Rule (KQL)
+## 6.Detection Rule (KQL)
 
     • Created analytics rule using Microsoft’s observability agent
 
