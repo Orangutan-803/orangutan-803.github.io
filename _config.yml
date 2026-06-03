@@ -4,8 +4,8 @@ logo_img: "/assets/img/favicon.webp"
 profile_img: "/assets/img/monkey-business.gif"
 
 # Social Links
-github_username: https://github.com/Orangutan-803
-linkedin_username: https://www.linkedin.com/in/jonah-addala/
+github_username: Orangutan-803
+linkedin_username: jonah-addala
 
 # External API
 giscus_repo: "byanko55/jekyll-theme-satellite"
