@@ -1,33 +1,36 @@
-var particleCount = 50;
-var flareCount = 20;
-var motion = 0.08;
-var tilt = 0.05;
-var colorPalette = ["#b33a1a", "#d45a1a", "#f07a1a", "#f09a3a", "#aa4a1a"]; // deeper, less saturated
-var particleSizeBase = 3.5;
-var particleSizeMultiplier = 0.9;
-var flareSizeBase = 70;
-var flareSizeMultiplier = 70;
+// Deep Space / Pillars of Creation Style
+// Slow glowing stars, white constellation lines, dark nebula backdrop
+
+var particleCount = 80;              // more stars for depth
+var flareCount = 30;                // soft nebula glows
+var motion = 0.03;                  // very slow drift
+var tilt = 0.02;                    // subtle mouse tilt
+var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"]; // white to pale blue/peach
+var particleSizeBase = 1.5;         // smaller stars
+var particleSizeMultiplier = 0.6;   // depth scaling
+var flareSizeBase = 150;            // big soft glows
+var flareSizeMultiplier = 200;
 var lineWidth = 1.2;
-var linkChance = 45;
-var linkLengthMin = 4;
-var linkLengthMax = 7;
-var linkOpacity = 0.35;      // more subtle
-var linkFade = 80;           // slower fade out
-var linkSpeed = 0.8;         // much slower link animation
-var glareAngle = -60;
-var glareOpacityMultiplier = 0.1;   // less glare intensity
+var linkChance = 35;                // moderate chance to start a new constellation line
+var linkLengthMin = 3;
+var linkLengthMax = 5;              // short, elegant constellations
+var linkOpacity = 0.25;             // very faint white
+var linkFade = 180;                 // long, slow fade out
+var linkSpeed = 0.4;               // very slow drawing speed
+var glareAngle = -45;
+var glareOpacityMultiplier = 0.05;  // subtle star glint
 var renderParticles = true;
 var renderParticleGlare = true;
 var renderFlares = true;
 var renderLinks = true;
-var renderMesh = false;
+var renderMesh = false;             // no wireframe mesh
 var flicker = true;
-var flickerSmoothing = 40;    // higher = slower flicker (was 8)
-var blurSize = 2;
+var flickerSmoothing = 50;          // very slow flicker (smoother, slower)
+var blurSize = 6;                   // soft glow
 var orbitTilt = true;
 var randomMotion = true;
-var noiseLength = 1000;
-var noiseStrength = 1.2;
+var noiseLength = 2000;
+var noiseStrength = 0.8;            // gentle wandering
 
 var canvas = document.getElementById("stars");
 var context = canvas.getContext("2d");
@@ -47,6 +50,17 @@ var links = [];
 var particles = [];
 var flares = [];
 var EPSILON = 1 / 1048576;
+
+// Set dark background for the canvas (nebula-like)
+function setDarkBackground() {
+    // Create a radial gradient for nebula effect
+    var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#03030f");
+    gradient.addColorStop(0.5, "#060618");
+    gradient.addColorStop(1, "#010108");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+}
 
 function randomColor(t) { return t[Math.floor(Math.random() * t.length)]; }
 function supertriangle(t) {
@@ -144,21 +158,8 @@ function init() {
 }
 
 function render() {
-    if (randomMotion && (++n >= noiseLength && (n = 0), nPos = noisePoint(n)), context.clearRect(0, 0, canvas.width, canvas.height), blurSize > 0 && (context.shadowBlur = blurSize, context.shadowColor = randomColor(colorPalette)), renderParticles)
+    if (randomMotion && (++n >= noiseLength && (n = 0), nPos = noisePoint(n)), context.clearRect(0, 0, canvas.width, canvas.height), setDarkBackground(), blurSize > 0 && (context.shadowBlur = blurSize, context.shadowColor = "rgba(100,150,255,0.5)"), renderParticles)
         for (var t = 0; t < particleCount; t++) particles[t].render();
-    if (renderMesh) {
-        context.beginPath();
-        for (var e = 0; e < vertices.length - 1; e++)
-            if ((e + 1) % 3 != 0) {
-                var i = particles[vertices[e]], s = particles[vertices[e + 1]], o = position(i.x, i.y, i.z), a = position(s.x, s.y, s.z);
-                context.moveTo(o.x, o.y);
-                context.lineTo(a.x, a.y);
-            }
-        context.strokeStyle = randomColor(colorPalette);
-        context.lineWidth = lineWidth;
-        context.stroke();
-        context.closePath();
-    }
     if (renderLinks) {
         if (random(0, linkChance) == linkChance) {
             var l = random(linkLengthMin, linkLengthMax);
@@ -179,9 +180,9 @@ function startLink(t, e) { links.push(new Link(t, e)); }
 var Particle = function() {
     this.x = random(-0.1, 1.1, true);
     this.y = random(-0.1, 1.1, true);
-    this.z = random(0, 4);
+    this.z = random(0, 3.5);          // less extreme depth
     this.color = randomColor(colorPalette);
-    this.opacity = random(0.4, 0.9, true); // lower base opacity for dark mode
+    this.opacity = random(0.3, 0.8, true);
     this.flicker = 0;
     this.neighbors = [];
 };
@@ -191,12 +192,12 @@ Particle.prototype.render = function() {
     var e = (this.z * particleSizeMultiplier + particleSizeBase) * (sizeRatio() / 1000);
     var i = this.opacity;
     if (flicker) {
-        var s = random(-0.3, 0.3, true); // smaller flicker amplitude
+        var s = random(-0.2, 0.2, true);  // subtle flicker
         this.flicker += (s - this.flicker) / flickerSmoothing;
-        if (this.flicker > 0.3) this.flicker = 0.3;
-        if (this.flicker < -0.3) this.flicker = -0.3;
+        if (this.flicker > 0.25) this.flicker = 0.25;
+        if (this.flicker < -0.25) this.flicker = -0.25;
         i += this.flicker;
-        if (i > 1) i = 1;
+        if (i > 0.95) i = 0.95;
         if (i < 0.2) i = 0.2;
     }
     context.fillStyle = this.color;
@@ -207,7 +208,7 @@ Particle.prototype.render = function() {
     context.closePath();
     if (renderParticleGlare) {
         context.globalAlpha = i * glareOpacityMultiplier;
-        context.ellipse(t.x, t.y, 100 * e, e, (glareAngle - (nPos.x - 0.5) * noiseStrength * motion) * (Math.PI / 180), 0, 2 * Math.PI, false);
+        context.ellipse(t.x, t.y, 80 * e, e * 1.5, (glareAngle - (nPos.x - 0.5) * noiseStrength * motion) * (Math.PI / 180), 0, 2 * Math.PI, false);
         context.fill();
         context.closePath();
     }
@@ -215,11 +216,13 @@ Particle.prototype.render = function() {
 };
 
 var Flare = function() {
-    this.x = random(-0.25, 1.25, true);
-    this.y = random(-0.25, 1.25, true);
-    this.z = random(0, 2);
-    this.color = randomColor(colorPalette);
-    this.opacity = random(0.003, 0.015, true); // more subtle
+    this.x = random(-0.2, 1.2, true);
+    this.y = random(-0.2, 1.2, true);
+    this.z = random(0, 1.5);
+    // Nebula colors: deep reds, cyans, purples
+    var nebulaColors = ["#2a1a3a", "#1a2a4a", "#3a1a2a", "#1a3a2a", "#2a2a4a"];
+    this.color = randomColor(nebulaColors);
+    this.opacity = random(0.005, 0.025, true);
 };
 
 Flare.prototype.render = function() {
@@ -318,7 +321,7 @@ Link.prototype.drawLine = function(t, e) {
         context.globalAlpha = e;
         context.beginPath();
         for (var i = 0; i < t.length - 1; i++) context.moveTo(t[i][0], t[i][1]), context.lineTo(t[i + 1][0], t[i + 1][1]);
-        context.strokeStyle = "#aaa"; // lighter gray for dark mode
+        context.strokeStyle = "#ffffff";   // pure white constellation lines
         context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
