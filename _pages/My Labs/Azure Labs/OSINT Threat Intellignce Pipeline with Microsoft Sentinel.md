@@ -4,19 +4,19 @@ date: "2026-05-30"
 thumbnail: "/assets/img/thumbnail/bricks.webp"
 ---
 
-Overview:
+# Overview:
 Integrated open-source threat intelligence into Microsoft Sentinel by deploying a self-hosted MISP (Malware Information Sharing Platform) instance on Azure. Built a real-time pipeline to map Sentinel logs with OSINT feeds using Python and API calls.
 
-Technical Architecture
+# Technical Architecture:
 
-    • Cloud Platform: Microsoft Azure (free trial & free services tier)
-    • Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
-    • Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
-    • Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
-    • Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
-    • SIEM: Microsoft Sentinel
+'Cloud Platform: Microsoft Azure (free trial & free services tier)
+Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
+Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
+Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
+Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
+SIEM: Microsoft Sentinel '
 
-Implementation Steps
+# Implementation Steps
 
 1. Azure Infrastructure Provisioning
 
@@ -171,7 +171,7 @@ Implementation Steps
     
     • Currently observing for matches
 
-Key Technical Decisions & Rationale
+# Key Technical Decisions & Rationale
 
     Docker on VM: Isolation + resource efficiency. Avoids dedicating a full VM to MISP, reduces Azure subscription costs.
 
@@ -183,7 +183,7 @@ Key Technical Decisions & Rationale
 
     Budget alerts: Proactive cost control after Azure credit anomaly.
 
-Current Status & Next Steps
+# Current Status & Next Steps
 
     MISP instance running, feeds updating
 
