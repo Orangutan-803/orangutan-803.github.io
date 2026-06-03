@@ -1,490 +1,332 @@
-/**
- * Space Background with Dynamic Constellations
- * Inspired by Pillars of Creation
- * Features:
- * - Glowing stars with slow pulsation
- * - Dynamic constellation lines that appear/disappear slowly
- * - Nebula clouds with subtle motion
- * - Fully responsive canvas background
- */
+// Deep Space / Pillars of Creation Style
+// Slow glowing stars, white constellation lines, dark nebula backdrop
 
-(function() {
-    // ==========================
-    // Configuration
-    // ==========================
-    const CONFIG = {
-        STAR_COUNT: 550,
-        CONSTELLATION_STAR_COUNT: 55,    // Number of stars used for constellation lines
-        CONSTELLATION_UPDATE_INTERVAL: 24000, // ms (24 seconds)
-        LINE_FADE_SPEED: 0.018,          // Per-frame opacity transition speed
-        GLOW_PULSE_SPEED: 0.003,          // Slow global glow pulse speed
-        MAX_LINE_DISTANCE_RATIO: 0.22,    // Max line length relative to min dimension
-        EXTRA_RANDOM_EDGES: 12,           // Additional random connections for visual richness
-        STAR_MIN_RADIUS: 0.8,
-        STAR_MAX_RADIUS: 2.3,
-        NEBULA_LAYERS: 6
-    };
+var particleCount = 80;              // more stars for depth
+var flareCount = 30;                // soft nebula glows
+var motion = 0.03;                  // very slow drift
+var tilt = 0.02;                    // subtle mouse tilt
+var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"]; // white to pale blue/peach
+var particleSizeBase = 1.5;         // smaller stars
+var particleSizeMultiplier = 0.6;   // depth scaling
+var flareSizeBase = 150;            // big soft glows
+var flareSizeMultiplier = 200;
+var lineWidth = 1.2;
+var linkChance = 35;                // moderate chance to start a new constellation line
+var linkLengthMin = 3;
+var linkLengthMax = 5;              // short, elegant constellations
+var linkOpacity = 0.25;             // very faint white
+var linkFade = 180;                 // long, slow fade out
+var linkSpeed = 0.4;               // very slow drawing speed
+var glareAngle = -45;
+var glareOpacityMultiplier = 0.05;  // subtle star glint
+var renderParticles = true;
+var renderParticleGlare = true;
+var renderFlares = true;
+var renderLinks = true;
+var renderMesh = false;             // no wireframe mesh
+var flicker = true;
+var flickerSmoothing = 50;          // very slow flicker (smoother, slower)
+var blurSize = 6;                   // soft glow
+var orbitTilt = true;
+var randomMotion = true;
+var noiseLength = 2000;
+var noiseStrength = 0.8;            // gentle wandering
 
-    // DOM elements
-    let canvas;
-    let ctx;
+var canvas = document.getElementById("stars");
+var context = canvas.getContext("2d");
+var mouse = { x: 0, y: 0 };
+var m = {};
+var r = 0;
+var c = 1000;
+var n = 0;
+var nAngle = 2 * Math.PI / noiseLength;
+var nRad = 100;
+var nScale = 0.5;
+var nPos = { x: 0, y: 0 };
+var points = [];
+var vertices = [];
+var triangles = [];
+var links = [];
+var particles = [];
+var flares = [];
+var EPSILON = 1 / 1048576;
 
-    // Data structures
-    let stars = [];            // Array of star objects {x, y, radius, brightness, color}
-    let edges = [];            // Array of {fromIdx, toIdx, opacity, targetOpacity}
-    let constellationStarIndices = []; // Indices of stars used in current constellation pattern
+// Set dark background for the canvas (nebula-like)
+function setDarkBackground() {
+    // Create a radial gradient for nebula effect
+    var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, "#03030f");
+    gradient.addColorStop(0.5, "#060618");
+    gradient.addColorStop(1, "#010108");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+}
 
-    // Animation & timing
-    let animationId = null;
-    let resizeTimeout = null;
-    let constellationInterval = null;
-    let time = 0;              // For slow pulsation effects
-
-    // Nebula animation offsets
-    let nebulaOffsets = [];
-
-    // ==========================
-    // Helper Functions
-    // ==========================
-    function randomRange(min, max) {
-        return min + Math.random() * (max - min);
-    }
-
-    // Generate star color (mostly white with slight blue/red/orange tints)
-    function getStarColor(brightness) {
-        const rand = Math.random();
-        if (rand < 0.7) {
-            return `rgba(255, 255, 255, ${brightness})`;
-        } else if (rand < 0.85) {
-            return `rgba(210, 220, 255, ${brightness})`; // cool blue
-        } else {
-            return `rgba(255, 230, 210, ${brightness})`; // warm orange
-        }
-    }
-
-    // Initialize stars with random positions and properties
-    function initStars(width, height) {
-        const starsArray = [];
-        for (let i = 0; i < CONFIG.STAR_COUNT; i++) {
-            const radius = randomRange(CONFIG.STAR_MIN_RADIUS, CONFIG.STAR_MAX_RADIUS);
-            const brightness = randomRange(0.45, 1.0);
-            starsArray.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                radius: radius,
-                baseRadius: radius,
-                brightness: brightness,
-                color: getStarColor(brightness)
-            });
-        }
-        return starsArray;
-    }
-
-    // Select which stars become "constellation stars" (brighter stars + random)
-    function selectConstellationStars(starList, count) {
-        // Weight by brightness: brighter stars more likely to be selected
-        const weightedIndices = [];
-        for (let i = 0; i < starList.length; i++) {
-            const weight = starList[i].brightness ** 1.5;
-            for (let j = 0; j < Math.floor(weight * 10) + 1; j++) {
-                weightedIndices.push(i);
-            }
-        }
-        // Shuffle and take unique indices
-        const shuffled = [...weightedIndices];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        const selected = new Set();
-        for (let idx of shuffled) {
-            selected.add(idx);
-            if (selected.size >= count) break;
-        }
-        // If we don't have enough, add random stars
-        if (selected.size < count) {
-            const allIndices = Array.from({length: starList.length}, (_, i) => i);
-            for (let idx of allIndices) {
-                selected.add(idx);
-                if (selected.size >= count) break;
-            }
-        }
-        return Array.from(selected);
-    }
-
-    // Compute edges (connections) for given set of constellation stars
-    function computeEdgesForConstellation(starList, constellationIndices, width, height) {
-        const edgesSet = new Set(); // use string "from,to" for uniqueness
-        const edgesList = [];
-        const maxDist = Math.min(width, height) * CONFIG.MAX_LINE_DISTANCE_RATIO;
-
-        // Helper to add edge (normalized order)
-        function addEdge(i1, i2) {
-            if (i1 === i2) return;
-            const key = i1 < i2 ? `${i1},${i2}` : `${i2},${i1}`;
-            if (edgesSet.has(key)) return;
-            edgesSet.add(key);
-            edgesList.push({ fromIdx: i1, toIdx: i2 });
-        }
-
-        // Build spatial index for constellation stars
-        const constStars = constellationIndices.map(idx => ({
-            idx: idx,
-            x: starList[idx].x,
-            y: starList[idx].y
-        }));
-
-        // For each constellation star, connect to up to 2 nearest neighbors within maxDist
-        for (let i = 0; i < constStars.length; i++) {
-            const starA = constStars[i];
-            const distances = [];
-            for (let j = 0; j < constStars.length; j++) {
-                if (i === j) continue;
-                const starB = constStars[j];
-                const dx = starA.x - starB.x;
-                const dy = starA.y - starB.y;
-                const dist = Math.hypot(dx, dy);
-                if (dist < maxDist) {
-                    distances.push({ idx: j, dist: dist });
-                }
-            }
-            distances.sort((a,b) => a.dist - b.dist);
-            // Connect to up to 2 nearest
-            const connections = distances.slice(0, 2);
-            for (let conn of connections) {
-                addEdge(starA.idx, constStars[conn.idx].idx);
-            }
-        }
-
-        // Ensure no isolated constellation stars: each star must have at least 1 connection
-        const connectedStars = new Set();
-        for (let edge of edgesList) {
-            connectedStars.add(edge.fromIdx);
-            connectedStars.add(edge.toIdx);
-        }
-        for (let idx of constellationIndices) {
-            if (!connectedStars.has(idx)) {
-                // Find nearest constellation neighbor
-                let nearestIdx = null;
-                let minDist = Infinity;
-                for (let otherIdx of constellationIndices) {
-                    if (otherIdx === idx) continue;
-                    const dx = starList[idx].x - starList[otherIdx].x;
-                    const dy = starList[idx].y - starList[otherIdx].y;
-                    const dist = Math.hypot(dx, dy);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        nearestIdx = otherIdx;
-                    }
-                }
-                if (nearestIdx !== null) {
-                    addEdge(idx, nearestIdx);
-                }
-            }
-        }
-
-        // Add extra random edges for aesthetic (between constellation stars)
-        const extraAttempts = CONFIG.EXTRA_RANDOM_EDGES;
-        for (let attempt = 0; attempt < extraAttempts; attempt++) {
-            const i = Math.floor(Math.random() * constellationIndices.length);
-            const j = Math.floor(Math.random() * constellationIndices.length);
-            if (i !== j) {
-                const idxA = constellationIndices[i];
-                const idxB = constellationIndices[j];
-                const dx = starList[idxA].x - starList[idxB].x;
-                const dy = starList[idxA].y - starList[idxB].y;
-                const dist = Math.hypot(dx, dy);
-                if (dist < maxDist * 1.1) {
-                    addEdge(idxA, idxB);
-                }
-            }
-        }
-
-        return edgesList;
-    }
-
-    // Update constellation pattern: new stars, new target edges, fade transition
-    function updateConstellationPattern(width, height) {
-        if (!stars.length) return;
-
-        // 1. Select new set of constellation stars
-        const newConstIndices = selectConstellationStars(stars, CONFIG.CONSTELLATION_STAR_COUNT);
-        constellationStarIndices = newConstIndices;
-
-        // 2. Compute new desired edges
-        const newRawEdges = computeEdgesForConstellation(stars, constellationStarIndices, width, height);
-        
-        // Create a set for quick lookup of new edges
-        const newEdgeKeySet = new Set();
-        for (let edge of newRawEdges) {
-            const key = edge.fromIdx < edge.toIdx ? `${edge.fromIdx},${edge.toIdx}` : `${edge.toIdx},${edge.fromIdx}`;
-            newEdgeKeySet.add(key);
-        }
-
-        // 3. Merge with existing edges: update targetOpacity
-        // First, mark all existing edges to fade out unless they are in new set
-        for (let edge of edges) {
-            const key = edge.fromIdx < edge.toIdx ? `${edge.fromIdx},${edge.toIdx}` : `${edge.toIdx},${edge.fromIdx}`;
-            if (newEdgeKeySet.has(key)) {
-                edge.targetOpacity = 1.0;
-            } else {
-                edge.targetOpacity = 0.0;
-            }
-        }
-
-        // 4. Add new edges that don't exist yet
-        for (let newEdge of newRawEdges) {
-            const exists = edges.some(e => 
-                (e.fromIdx === newEdge.fromIdx && e.toIdx === newEdge.toIdx) ||
-                (e.fromIdx === newEdge.toIdx && e.toIdx === newEdge.fromIdx)
-            );
-            if (!exists) {
-                edges.push({
-                    fromIdx: newEdge.fromIdx,
-                    toIdx: newEdge.toIdx,
-                    opacity: 0.0,
-                    targetOpacity: 1.0
-                });
-            }
-        }
-
-        // Optional: clean up edges that have very low opacity and target zero for long
-        edges = edges.filter(edge => edge.opacity > 0.01 || edge.targetOpacity > 0.01);
-    }
-
-    // Draw glowing nebula clouds (Pillars of Creation vibe)
-    function drawNebula(width, height, timeVal) {
-        // Create radial gradients for cosmic clouds
-        const gradients = [
-            { color1: 'rgba(80, 40, 100, 0.2)', color2: 'rgba(30, 20, 60, 0.0)', radius: 0.4 },
-            { color1: 'rgba(60, 30, 90, 0.18)', color2: 'rgba(20, 10, 40, 0.0)', radius: 0.45 },
-            { color1: 'rgba(100, 50, 70, 0.15)', color2: 'rgba(40, 20, 30, 0.0)', radius: 0.35 },
-            { color1: 'rgba(40, 60, 100, 0.16)', color2: 'rgba(10, 20, 50, 0.0)', radius: 0.5 },
-            { color1: 'rgba(130, 70, 40, 0.12)', color2: 'rgba(50, 30, 10, 0.0)', radius: 0.3 },
-            { color1: 'rgba(70, 90, 130, 0.14)', color2: 'rgba(20, 30, 60, 0.0)', radius: 0.48 }
-        ];
-
-        for (let i = 0; i < gradients.length && i < CONFIG.NEBULA_LAYERS; i++) {
-            const grad = gradients[i];
-            const offX = nebulaOffsets[i]?.x || 0;
-            const offY = nebulaOffsets[i]?.y || 0;
-            const centerX = width * (0.3 + 0.4 * Math.sin(timeVal * 0.0005 + i)) + offX;
-            const centerY = height * (0.5 + 0.2 * Math.cos(timeVal * 0.0003 + i * 2)) + offY;
-            const maxRadius = Math.max(width, height) * grad.radius;
-            
-            const radialGrd = ctx.createRadialGradient(centerX, centerY, maxRadius * 0.2, centerX, centerY, maxRadius);
-            radialGrd.addColorStop(0, grad.color1);
-            radialGrd.addColorStop(1, grad.color2);
-            
-            ctx.globalCompositeOperation = 'screen';
-            ctx.fillStyle = radialGrd;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, maxRadius, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        ctx.globalCompositeOperation = 'source-over';
-    }
-
-    // Update nebula offset positions (slow drifting)
-    function updateNebulaOffsets() {
-        for (let i = 0; i < CONFIG.NEBULA_LAYERS; i++) {
-            if (!nebulaOffsets[i]) {
-                nebulaOffsets[i] = { x: 0, y: 0, speedX: randomRange(-0.05, 0.05), speedY: randomRange(-0.05, 0.05) };
-            }
-            nebulaOffsets[i].x += nebulaOffsets[i].speedX * 0.3;
-            nebulaOffsets[i].y += nebulaOffsets[i].speedY * 0.3;
-            // Wrap around subtly
-            if (Math.abs(nebulaOffsets[i].x) > 80) nebulaOffsets[i].speedX *= -0.95;
-            if (Math.abs(nebulaOffsets[i].y) > 80) nebulaOffsets[i].speedY *= -0.95;
-        }
-    }
-
-    // Draw all stars with pulsating glow
-    function drawStars(width, height, glowIntensity) {
-        for (let star of stars) {
-            // Pulsate brightness slightly based on global time
-            const pulsation = 0.7 + 0.3 * Math.sin(time * CONFIG.GLOW_PULSE_SPEED + star.brightness * 10);
-            const alpha = Math.min(star.brightness * (0.7 + glowIntensity * 0.5) * pulsation, 0.95);
-            
-            // Outer glow (soft halo)
-            ctx.shadowBlur = star.radius * 3.5 + 2;
-            ctx.shadowColor = `rgba(255, 240, 200, ${alpha * 0.7})`;
-            
-            // Inner core
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = star.color.replace(/[\d\.]+\)$/g, `${alpha})`);
-            ctx.fill();
-            
-            // Extra bright core for larger stars
-            if (star.radius > 1.5) {
-                ctx.shadowBlur = star.radius * 2;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.radius * 0.5, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 245, 210, ${alpha * 0.9})`;
-                ctx.fill();
-            }
-        }
-        // Reset shadow to avoid affecting lines
-        ctx.shadowBlur = 0;
-    }
-
-    // Draw constellation lines with glow and dynamic opacity
-    function drawConstellationLines() {
-        if (edges.length === 0) return;
-        
-        ctx.save();
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = 'rgba(255, 255, 230, 0.8)';
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = 'round';
-        
-        for (let edge of edges) {
-            if (edge.opacity <= 0.01) continue;
-            
-            const fromStar = stars[edge.fromIdx];
-            const toStar = stars[edge.toIdx];
-            if (!fromStar || !toStar) continue;
-            
-            ctx.beginPath();
-            ctx.moveTo(fromStar.x, fromStar.y);
-            ctx.lineTo(toStar.x, toStar.y);
-            
-            // Opacity with subtle pulsation
-            const lineAlpha = Math.min(edge.opacity * (0.7 + 0.3 * Math.sin(time * 0.002)), 0.85);
-            ctx.strokeStyle = `rgba(255, 245, 210, ${lineAlpha})`;
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-
-    // Update edge opacities (smooth fade toward target)
-    function updateEdgeOpacities() {
-        let anyChange = false;
-        for (let edge of edges) {
-            const diff = edge.targetOpacity - edge.opacity;
-            if (Math.abs(diff) > 0.002) {
-                edge.opacity += diff * CONFIG.LINE_FADE_SPEED;
-                anyChange = true;
-            } else {
-                edge.opacity = edge.targetOpacity;
-            }
-        }
-        // Clean up edges that faded out completely and have target 0
-        if (!anyChange) {
-            edges = edges.filter(edge => edge.opacity > 0.01 || edge.targetOpacity > 0.01);
-        }
-    }
-
-    // Resize handler: resize canvas, regenerate stars and constellations
-    function handleResize() {
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-            
-            // Regenerate everything on resize
-            stars = initStars(width, height);
-            constellationStarIndices = selectConstellationStars(stars, CONFIG.CONSTELLATION_STAR_COUNT);
-            const newEdgesRaw = computeEdgesForConstellation(stars, constellationStarIndices, width, height);
-            edges = newEdgesRaw.map(edge => ({
-                fromIdx: edge.fromIdx,
-                toIdx: edge.toIdx,
-                opacity: 0.5,      // Start partially visible
-                targetOpacity: 0.8
-            }));
-            
-            // Re-start dynamic pattern updates (clear old interval, start fresh)
-            if (constellationInterval) clearInterval(constellationInterval);
-            constellationInterval = setInterval(() => {
-                if (stars.length && canvas) {
-                    updateConstellationPattern(canvas.width, canvas.height);
-                }
-            }, CONFIG.CONSTELLATION_UPDATE_INTERVAL);
-        }, 150);
-    }
-
-    // Main animation render loop
-    function animate() {
-        if (!canvas || !ctx) return;
-        
-        const width = canvas.width;
-        const height = canvas.height;
-        if (width === 0 || height === 0) return;
-        
-        // Increment global time for pulsations
-        time = (time + 1) % (Math.PI * 2000);
-        
-        // Calculate global glow intensity (very slow sine wave)
-        const glowPulse = 0.6 + 0.35 * Math.sin(time * CONFIG.GLOW_PULSE_SPEED);
-        
-        // Clear canvas with deep space gradient
-        const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, '#03020f');
-        gradient.addColorStop(0.5, '#0a0518');
-        gradient.addColorStop(1, '#04020c');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        
-        // Draw nebulae (Pillars of Creation style)
-        updateNebulaOffsets();
-        drawNebula(width, height, time);
-        
-        // Update constellation line opacities (fade in/out)
-        updateEdgeOpacities();
-        
-        // Draw constellation lines first (behind stars)
-        drawConstellationLines();
-        
-        // Draw stars with glow
-        drawStars(width, height, glowPulse);
-        
-        // Additional very faint star dust (tiny dots) for depth
-        ctx.fillStyle = 'rgba(255, 255, 245, 0.15)';
-        for (let i = 0; i < stars.length * 0.3; i++) {
-            // Not performance heavy, just adds atmosphere
-            if (Math.random() < 0.05) {
-                ctx.beginPath();
-                ctx.arc(Math.random() * width, Math.random() * height, 0.4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        animationId = requestAnimationFrame(animate);
-    }
-
-    // Initialize the background system
-    function initBackground() {
-        // Create canvas if not exists (assume it's not provided in HTML, but we'll create it)
-        canvas = document.createElement('canvas');
-        canvas.id = 'space-pillars-canvas';
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.width = '100%';
-        canvas.style.height = '100%';
-        canvas.style.zIndex = '-2';
-        canvas.style.pointerEvents = 'none';
-        document.body.insertBefore(canvas, document.body.firstChild);
-        
-        ctx = canvas.getContext('2d');
-        
-        // Initial sizing
-        handleResize();
-        
-        // Start animation
-        animate();
-        
-        // Listen for resize events
-        window.addEventListener('resize', handleResize);
-    }
-
-    // Start when page is fully loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBackground);
+function randomColor(t) { return t[Math.floor(Math.random() * t.length)]; }
+function supertriangle(t) {
+    var e, i, s, o, a, l, h = Number.POSITIVE_INFINITY, $ = Number.POSITIVE_INFINITY, f = Number.NEGATIVE_INFINITY, d = Number.NEGATIVE_INFINITY;
+    for (e = t.length; e--;) t[e][0] < h && (h = t[e][0]), t[e][0] > f && (f = t[e][0]), t[e][1] < $ && ($ = t[e][1]), t[e][1] > d && (d = t[e][1]);
+    o = Math.max(i = f - h, s = d - $);
+    return [[(a = h + .5 * i) - 20 * o, (l = $ + .5 * s) - o], [a, l + 20 * o], [a + 20 * o, l - o]];
+}
+function circumcircle(t, e, i, s) {
+    var o, a, l, h, $, f, d, u, v, p, g = t[e][0], _ = t[e][1], x = t[i][0], k = t[i][1], y = t[s][0], P = t[s][1], I = Math.abs(_ - k), b = Math.abs(k - P);
+    if (I < EPSILON && b < EPSILON) throw Error("Eek! Coincident points!");
+    if (I < EPSILON) {
+        h = -((y - x) / (P - k));
+        f = (x + y) / 2;
+        u = (k + P) / 2;
+        a = h * ((o = (x + g) / 2) - f) + u;
+    } else if (b < EPSILON) {
+        l = -((x - g) / (k - _));
+        $ = (g + x) / 2;
+        d = (_ + k) / 2;
+        a = l * ((o = (y + x) / 2) - $) + d;
     } else {
-        initBackground();
+        l = -((x - g) / (k - _));
+        h = -((y - x) / (P - k));
+        $ = (g + x) / 2;
+        f = (x + y) / 2;
+        d = (_ + k) / 2;
+        o = (l * $ - h * f + (u = (k + P) / 2) - d) / (l - h);
+        a = I > b ? l * (o - $) + d : h * (o - f) + u;
     }
-})();
+    v = x - o;
+    p = k - a;
+    return { i: e, j: i, k: s, x: o, y: a, r: v * v + p * p };
+}
+function dedup(t) {
+    var e, i, s, o, a, l;
+    for (i = t.length; i;)
+        for (o = t[--i], s = t[--i], e = i; e;)
+            if (l = t[--e], s === (a = t[--e]) && o === l || s === l && o === a) {
+                t.splice(i, 2);
+                t.splice(e, 2);
+                break;
+            }
+}
+function Delaunay(t, e) {
+    var i, s, o, a, l, h, $, f, d, u, v, p, g = t.length;
+    if (g < 3) return [];
+    if (t = t.slice(0), e) for (i = g; i--;) t[i] = t[i][e];
+    for (o = Array(g), i = g; i--;) o[i] = i;
+    for (o.sort(function(e, i) { return t[i][0] - t[e][0]; }), a = supertriangle(t), t.push(a[0], a[1], a[2]), l = [circumcircle(t, g + 0, g + 1, g + 2)], h = [], $ = [], i = o.length; i--; $.length = 0) {
+        for (p = o[i], s = l.length; s--;) {
+            if ((f = t[p][0] - l[s].x) > 0 && f * f > l[s].r) { h.push(l[s]); l.splice(s, 1); continue; }
+            f * f + (d = t[p][1] - l[s].y) * d - l[s].r > EPSILON || ($.push(l[s].i, l[s].j, l[s].j, l[s].k, l[s].k, l[s].i), l.splice(s, 1));
+        }
+        for (dedup($), s = $.length; s;) v = $[--s], u = $[--s], l.push(circumcircle(t, u, v, p));
+    }
+    for (i = l.length; i--;) h.push(l[i]);
+    for (l.length = 0, i = h.length; i--;) h[i].i < g && h[i].j < g && h[i].k < g && l.push(h[i].i, h[i].j, h[i].k);
+    return l;
+}
+
+function init() {
+    window.requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(t) { window.setTimeout(t, 1e3 / 60); };
+    resize();
+    mouse.x = canvas.clientWidth / 2;
+    mouse.y = canvas.clientHeight / 2;
+    for (var t = 0; t < particleCount; t++) {
+        var s = new Particle();
+        particles.push(s);
+        points.push([s.x * c, s.y * c]);
+    }
+    vertices = Delaunay(points);
+    var o = [];
+    for (t = 0; t < vertices.length; t++) {
+        if (3 == o.length) { triangles.push(o); o = []; }
+        o.push(vertices[t]);
+    }
+    for (t = 0; t < particles.length; t++)
+        for (var e = 0; e < triangles.length; e++)
+            if (-1 !== (i = triangles[e].indexOf(t)))
+                triangles[e].forEach(function(e, i, s) { e !== t && -1 == particles[t].neighbors.indexOf(e) && particles[t].neighbors.push(e); });
+    if (renderFlares) for (t = 0; t < flareCount; t++) flares.push(new Flare());
+    if ("ontouchstart" in document.documentElement && window.DeviceOrientationEvent)
+        window.addEventListener("deviceorientation", function(t) {
+            mouse.x = canvas.clientWidth / 2 - t.gamma / 90 * (canvas.clientWidth / 2) * 2;
+            mouse.y = canvas.clientHeight / 2 - t.beta / 90 * (canvas.clientHeight / 2) * 2;
+        }, true);
+    else
+        document.body.addEventListener("mousemove", function(t) { mouse.x = t.clientX; mouse.y = t.clientY; });
+    (function t() {
+        requestAnimFrame(t);
+        resize();
+        render();
+    })();
+}
+
+function render() {
+    if (randomMotion && (++n >= noiseLength && (n = 0), nPos = noisePoint(n)), context.clearRect(0, 0, canvas.width, canvas.height), setDarkBackground(), blurSize > 0 && (context.shadowBlur = blurSize, context.shadowColor = "rgba(100,150,255,0.5)"), renderParticles)
+        for (var t = 0; t < particleCount; t++) particles[t].render();
+    if (renderLinks) {
+        if (random(0, linkChance) == linkChance) {
+            var l = random(linkLengthMin, linkLengthMax);
+            startLink(random(0, particles.length - 1), l);
+        }
+        for (var h = links.length - 1; h >= 0; h--) links[h] && !links[h].finished ? links[h].render() : delete links[h];
+    }
+    if (renderFlares) for (var $ = 0; $ < flareCount; $++) flares[$].render();
+}
+
+function resize() {
+    canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+    canvas.height = canvas.width * (canvas.clientHeight / canvas.clientWidth);
+}
+
+function startLink(t, e) { links.push(new Link(t, e)); }
+
+var Particle = function() {
+    this.x = random(-0.1, 1.1, true);
+    this.y = random(-0.1, 1.1, true);
+    this.z = random(0, 3.5);          // less extreme depth
+    this.color = randomColor(colorPalette);
+    this.opacity = random(0.3, 0.8, true);
+    this.flicker = 0;
+    this.neighbors = [];
+};
+
+Particle.prototype.render = function() {
+    var t = position(this.x, this.y, this.z);
+    var e = (this.z * particleSizeMultiplier + particleSizeBase) * (sizeRatio() / 1000);
+    var i = this.opacity;
+    if (flicker) {
+        var s = random(-0.2, 0.2, true);  // subtle flicker
+        this.flicker += (s - this.flicker) / flickerSmoothing;
+        if (this.flicker > 0.25) this.flicker = 0.25;
+        if (this.flicker < -0.25) this.flicker = -0.25;
+        i += this.flicker;
+        if (i > 0.95) i = 0.95;
+        if (i < 0.2) i = 0.2;
+    }
+    context.fillStyle = this.color;
+    context.globalAlpha = i;
+    context.beginPath();
+    context.arc(t.x, t.y, e, 0, 2 * Math.PI, false);
+    context.fill();
+    context.closePath();
+    if (renderParticleGlare) {
+        context.globalAlpha = i * glareOpacityMultiplier;
+        context.ellipse(t.x, t.y, 80 * e, e * 1.5, (glareAngle - (nPos.x - 0.5) * noiseStrength * motion) * (Math.PI / 180), 0, 2 * Math.PI, false);
+        context.fill();
+        context.closePath();
+    }
+    context.globalAlpha = 1;
+};
+
+var Flare = function() {
+    this.x = random(-0.2, 1.2, true);
+    this.y = random(-0.2, 1.2, true);
+    this.z = random(0, 1.5);
+    // Nebula colors: deep reds, cyans, purples
+    var nebulaColors = ["#2a1a3a", "#1a2a4a", "#3a1a2a", "#1a3a2a", "#2a2a4a"];
+    this.color = randomColor(nebulaColors);
+    this.opacity = random(0.005, 0.025, true);
+};
+
+Flare.prototype.render = function() {
+    var t = position(this.x, this.y, this.z);
+    var e = (this.z * flareSizeMultiplier + flareSizeBase) * (sizeRatio() / 1000);
+    context.beginPath();
+    context.globalAlpha = this.opacity;
+    context.arc(t.x, t.y, e, 0, 2 * Math.PI, false);
+    context.fillStyle = this.color;
+    context.fill();
+    context.closePath();
+    context.globalAlpha = 1;
+};
+
+var Link = function(t, e) {
+    this.length = e;
+    this.verts = [t];
+    this.stage = 0;
+    this.linked = [t];
+    this.distances = [];
+    this.traveled = 0;
+    this.fade = 0;
+    this.finished = false;
+};
+
+function noisePoint(t) {
+    var e = nAngle * t;
+    var i = nRad;
+    return { x: i * Math.cos(e), y: i * Math.sin(e) };
+}
+
+function position(t, e, i) {
+    return {
+        x: t * canvas.width + (canvas.width / 2 - mouse.x + (nPos.x - 0.5) * noiseStrength) * i * motion,
+        y: e * canvas.height + (canvas.height / 2 - mouse.y + (nPos.y - 0.5) * noiseStrength) * i * motion
+    };
+}
+
+function sizeRatio() { return canvas.width >= canvas.height ? canvas.width : canvas.height; }
+function random(t, e, i) { return i ? Math.random() * (e - t) + t : Math.floor(Math.random() * (e - t + 1)) + t; }
+
+Link.prototype.render = function() {
+    var t, e, i, s;
+    switch (this.stage) {
+        case 0:
+            var o = particles[this.verts[this.verts.length - 1]];
+            if (o && o.neighbors && o.neighbors.length > 0) {
+                var a = o.neighbors[random(0, o.neighbors.length - 1)];
+                if (-1 == this.verts.indexOf(a)) this.verts.push(a);
+            } else { this.stage = 3; this.finished = true; }
+            if (this.verts.length >= this.length) {
+                for (t = 0; t < this.verts.length - 1; t++) {
+                    var l = particles[this.verts[t]], h = particles[this.verts[t + 1]], $ = l.x - h.x, f = l.y - h.y, d = Math.sqrt($ * $ + f * f);
+                    this.distances.push(d);
+                }
+                this.stage = 1;
+            }
+            break;
+        case 1:
+            if (this.distances.length > 0) {
+                for (t = 0, s = []; t < this.linked.length; t++) i = position((e = particles[this.linked[t]]).x, e.y, e.z), s.push([i.x, i.y]);
+                var u = 1e-5 * linkSpeed * canvas.width;
+                this.traveled += u;
+                var v = this.distances[this.linked.length - 1];
+                if (this.traveled >= v) {
+                    this.traveled = 0;
+                    this.linked.push(this.verts[this.linked.length]);
+                    i = position((e = particles[this.linked[this.linked.length - 1]]).x, e.y, e.z);
+                    s.push([i.x, i.y]);
+                    if (this.linked.length >= this.verts.length) this.stage = 2;
+                } else {
+                    var p, g = particles[this.linked[this.linked.length - 1]], _ = particles[this.verts[this.linked.length]], x = v - this.traveled, k = (this.traveled * _.x + x * g.x) / v;
+                    i = position(k, (this.traveled * _.y + x * g.y) / v, (this.traveled * _.z + x * g.z) / v);
+                    s.push([i.x, i.y]);
+                }
+                this.drawLine(s);
+            } else { this.stage = 3; this.finished = true; }
+            break;
+        case 2:
+            if (this.verts.length > 1) {
+                if (this.fade < linkFade) {
+                    this.fade++;
+                    s = [];
+                    var y = (1 - this.fade / linkFade) * linkOpacity;
+                    for (t = 0; t < this.verts.length; t++) i = position((e = particles[this.verts[t]]).x, e.y, e.z), s.push([i.x, i.y]);
+                    this.drawLine(s, y);
+                } else { this.stage = 3; this.finished = true; }
+            } else { this.stage = 3; this.finished = true; }
+            break;
+        default: this.finished = true;
+    }
+};
+
+Link.prototype.drawLine = function(t, e) {
+    if ("number" != typeof e && (e = linkOpacity), t.length > 1 && e > 0) {
+        context.globalAlpha = e;
+        context.beginPath();
+        for (var i = 0; i < t.length - 1; i++) context.moveTo(t[i][0], t[i][1]), context.lineTo(t[i + 1][0], t[i + 1][1]);
+        context.strokeStyle = "#ffffff";   // pure white constellation lines
+        context.lineWidth = lineWidth;
+        context.stroke();
+        context.closePath();
+        context.globalAlpha = 1;
+    }
+};
+
+if (canvas) init();
