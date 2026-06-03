@@ -5,6 +5,7 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 ---
 
 # Overview
+---
 Integrated open-source threat intelligence into Microsoft Sentinel by deploying a self-hosted MISP (Malware Information Sharing Platform) instance on Azure. Built a real-time pipeline to map Sentinel logs with OSINT feeds using Python and API calls.
 
 # Technical Architecture
@@ -120,20 +121,18 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
 
 # Current Status & Next Steps
 ---
-<code>
     MISP instance running, feeds updating
     Sentinel receiving threat intelligence indicators
     KQL rule active for SSH brute-force detection
-    Tuning indicator filters to improve detection rate
-    Note: The analytics rule relies on specific threat intelligence feeds. Given the narrow targeting of those indicators, incident generation is not guaranteed under normal test conditions.
-</code>
+    Tuning indicator filters to improve detection rate 
+Note: The analytics rule relies on specific threat intelligence feeds. Given the narrow targeting of those indicators, incident generation is not guaranteed under normal test conditions.
+
 
 # Azure Services & Tools Used
 ---
-<code>
     Virtual Machines (Ubuntu)
     Azure CLI
     Microsoft Sentinel (Log Analytics)
     Budget Alerts & Cost Management
     (Attempted) Azure Functions – trial limitations documented
-</code>
+
