@@ -1,33 +1,33 @@
 var particleCount = 50;
 var flareCount = 20;
-var motion = 0.1;
+var motion = 0.08;
 var tilt = 0.05;
-var colorPalette = ["#ff4d00", "#ff9e00", "#ffd000", "#ff6a00", "#cc3300"];
-var particleSizeBase = 4;
-var particleSizeMultiplier = 1.0;
-var flareSizeBase = 80;
-var flareSizeMultiplier = 80;
-var lineWidth = 1.5;
-var linkChance = 50;
+var colorPalette = ["#b33a1a", "#d45a1a", "#f07a1a", "#f09a3a", "#aa4a1a"]; // deeper, less saturated
+var particleSizeBase = 3.5;
+var particleSizeMultiplier = 0.9;
+var flareSizeBase = 70;
+var flareSizeMultiplier = 70;
+var lineWidth = 1.2;
+var linkChance = 45;
 var linkLengthMin = 4;
 var linkLengthMax = 7;
-var linkOpacity = 0.5;
-var linkFade = 50;
-var linkSpeed = 1.8;
+var linkOpacity = 0.35;      // more subtle
+var linkFade = 80;           // slower fade out
+var linkSpeed = 0.8;         // much slower link animation
 var glareAngle = -60;
-var glareOpacityMultiplier = 0.2;
+var glareOpacityMultiplier = 0.1;   // less glare intensity
 var renderParticles = true;
 var renderParticleGlare = true;
 var renderFlares = true;
 var renderLinks = true;
 var renderMesh = false;
 var flicker = true;
-var flickerSmoothing = 8;
-var blurSize = 3;
+var flickerSmoothing = 40;    // higher = slower flicker (was 8)
+var blurSize = 2;
 var orbitTilt = true;
 var randomMotion = true;
 var noiseLength = 1000;
-var noiseStrength = 1.5;
+var noiseStrength = 1.2;
 
 var canvas = document.getElementById("stars");
 var context = canvas.getContext("2d");
@@ -181,7 +181,7 @@ var Particle = function() {
     this.y = random(-0.1, 1.1, true);
     this.z = random(0, 4);
     this.color = randomColor(colorPalette);
-    this.opacity = random(0.1, 1, true);
+    this.opacity = random(0.4, 0.9, true); // lower base opacity for dark mode
     this.flicker = 0;
     this.neighbors = [];
 };
@@ -191,13 +191,13 @@ Particle.prototype.render = function() {
     var e = (this.z * particleSizeMultiplier + particleSizeBase) * (sizeRatio() / 1000);
     var i = this.opacity;
     if (flicker) {
-        var s = random(-0.5, 0.5, true);
+        var s = random(-0.3, 0.3, true); // smaller flicker amplitude
         this.flicker += (s - this.flicker) / flickerSmoothing;
-        if (this.flicker > 0.5) this.flicker = 0.5;
-        if (this.flicker < -0.5) this.flicker = -0.5;
+        if (this.flicker > 0.3) this.flicker = 0.3;
+        if (this.flicker < -0.3) this.flicker = -0.3;
         i += this.flicker;
         if (i > 1) i = 1;
-        if (i < 0) i = 0;
+        if (i < 0.2) i = 0.2;
     }
     context.fillStyle = this.color;
     context.globalAlpha = i;
@@ -219,7 +219,7 @@ var Flare = function() {
     this.y = random(-0.25, 1.25, true);
     this.z = random(0, 2);
     this.color = randomColor(colorPalette);
-    this.opacity = random(0.001, 0.01, true);
+    this.opacity = random(0.003, 0.015, true); // more subtle
 };
 
 Flare.prototype.render = function() {
@@ -318,7 +318,7 @@ Link.prototype.drawLine = function(t, e) {
         context.globalAlpha = e;
         context.beginPath();
         for (var i = 0; i < t.length - 1; i++) context.moveTo(t[i][0], t[i][1]), context.lineTo(t[i + 1][0], t[i + 1][1]);
-        context.strokeStyle = "#888";
+        context.strokeStyle = "#aaa"; // lighter gray for dark mode
         context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
