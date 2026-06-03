@@ -9,12 +9,12 @@ Integrated open-source threat intelligence into Microsoft Sentinel by deploying 
 
 # Technical Architecture
 
-'Cloud Platform: Microsoft Azure (free trial & free services tier)
+<code>Cloud Platform: Microsoft Azure (free trial & free services tier)
 Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
 Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
 Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
 Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
-SIEM: Microsoft Sentinel '
+SIEM: Microsoft Sentinel</code>
 
 # Implementation Steps
 
@@ -84,31 +84,29 @@ SIEM: Microsoft Sentinel '
 
 - Configuring MISP2Sentinel Data connector
 
-        - Registering app
+  - Registering app
         
 <img src="https://github.com/user-attachments/assets/40432c02-a1be-409d-8f77-83f8fa91edc8" />
 <img src="https://github.com/user-attachments/assets/3e0302c3-2cec-4b98-ab09-18b0d1e7b217" />
 
-        - Generating Secret
+  - Generating Secret
 
 <img src="https://github.com/user-attachments/assets/ed0026a2-d5c2-4e49-92b4-e7fdda0f4be5" />
 
-        - Setting Access Control
+  - Setting Access Control
 
 <img src="https://github.com/user-attachments/assets/4188a26e-21c5-496b-9c4f-96520bf10d1a" />
         
-        - MISP API Key generation
+  - MISP API Key generation
 
 <img src="https://github.com/user-attachments/assets/1a77ce1b-14d4-42e1-b66f-486942cb087a" />
 
-        
-        - Attempting to use Azure Function Apps
+  - Attempting to use Azure Function Apps
         
 <img src="https://github.com/user-attachments/assets/cb0a9ad6-fec7-43ca-bdca-5c53fe55e15b" />
 <img src="https://github.com/user-attachments/assets/dbb9536e-0cd6-48aa-847a-5e8eba6573a5" />
         
-
-        
+      
  - Proceeding with running script on MISP VM instead
         
     - Cloned MISP2Sentinel integration script from GitHub
