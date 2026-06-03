@@ -21,13 +21,9 @@ SIEM: Microsoft Sentinel</code>
 ## 1.Azure Infrastructure Provisioning
 
 - Used Azure CLI for all resource management
-    
 - Initially deployed a free-tier VM → encountered CPU limitations causing system hangs during MISP install
-    
 - Redeployed with a higher-core VM to meet computational demands
-
 <img src="https://github.com/user-attachments/assets/fe2b1009-8970-4259-8d87-e55eadb62eae" />
-
 - Configured budget alerts to prevent cost surprises after a credit glitch (Azure free credits temporarily disappeared)
 
 <img src="https://github.com/user-attachments/assets/61d36ad7-b025-49b1-a890-1d8e45ca7716" />
@@ -37,41 +33,25 @@ SIEM: Microsoft Sentinel</code>
 ## 2.MISP Deployment (Docker-based)
 
 - Installed Docker on Ubuntu VM
-
 <img src="https://github.com/user-attachments/assets/dfa51ce4-ca09-41a0-b534-52e468ed2578" />
-
 - Cloned misp-docker GitHub repository
-
-<img src="https://github.com/user-attachments/assets/2acb1eeb-7dee-471f-a473-5c1b38aa4423" />
-    
+<img src="https://github.com/user-attachments/assets/2acb1eeb-7dee-471f-a473-5c1b38aa4423" /> 
 - Copied and customized template.env → production .env file
-
-<img src="https://github.com/user-attachments/assets/e5cd2dec-a7ad-4a62-bf2d-c60b8225d823" />
-    
+<img src="https://github.com/user-attachments/assets/e5cd2dec-a7ad-4a62-bf2d-c60b8225d823" />  
 - Built and ran MISP container via docker-compose up
-
 <img src="https://github.com/user-attachments/assets/ab85d05f-ba60-4917-bb76-7d404b412c1f" />
-
-<img src="https://github.com/user-attachments/assets/9adf4cf1-cd63-40fc-8207-9b42c5f86662" />
-    
+<img src="https://github.com/user-attachments/assets/9adf4cf1-cd63-40fc-8207-9b42c5f86662" />  
 - Opened port 443 for remote access, MISP instance accessible
-
 <img src="https://github.com/user-attachments/assets/e2752aaf-43ca-4d4a-92a8-5abfd19ac14e" />
     
 ## 3.Feed Ingestion
 
 - Copied public threat intelligence feeds into local MISP instance
-
 <img src="https://github.com/user-attachments/assets/e465ed06-84bf-4a8f-ad53-64de8280f5c5" />
-
 <img src="https://github.com/user-attachments/assets/e192b710-f239-4dc8-99c8-8d6bfc7d8949" />
-
 <img src="https://github.com/user-attachments/assets/68377e23-57ce-4855-b2bc-92650e191fea" />
-
-<img src="https://github.com/user-attachments/assets/4207f9a7-bdba-45c6-8841-5964b094d5e6" />
-    
+<img src="https://github.com/user-attachments/assets/4207f9a7-bdba-45c6-8841-5964b094d5e6" />   
 - Waited 24+ hours for initial feed synchronization
-
 <img src="https://github.com/user-attachments/assets/629e167f-41f4-404b-aabf-9350489f15de" />
     
 ## 4.Sentinel Integration
