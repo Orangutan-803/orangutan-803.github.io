@@ -1,6 +1,7 @@
 ---
 title: "Sentinel Deployment"
 date: "2026-05-01"
+thumbnail: "/assets/img/thumbnail/bricks.webp
 ---
 
 **Objective:** Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both failed and successful) from a Linux Ubuntu VM exposed to the internet.
@@ -11,7 +12,7 @@ date: "2026-05-01"
 
 -    Created an Ubuntu VM (`non-vulnerable-01`) with OpenSSH port 22 open to the internet, placed in resource group `orangutan-labs`.
 
-   <img width="1623" height="734" alt="8" src="https://github.com/user-attachments/assets/342cf9d0-00a1-4bba-801a-9912fb5c574d" />
+   !<img width="1623" height="734" alt="8" src="https://github.com/user-attachments/assets/342cf9d0-00a1-4bba-801a-9912fb5c574d" />
 
 
 -    Verified local SSH connectivity.
