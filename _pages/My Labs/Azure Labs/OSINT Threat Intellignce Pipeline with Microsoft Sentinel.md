@@ -8,16 +8,16 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 Integrated open-source threat intelligence into Microsoft Sentinel by deploying a self-hosted MISP (Malware Information Sharing Platform) instance on Azure. Built a real-time pipeline to map Sentinel logs with OSINT feeds using Python and API calls.
 
 # Technical Architecture
-
-<code>Cloud Platform: Microsoft Azure (free trial & free services tier)
-Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
-Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
-Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
-Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
-SIEM: Microsoft Sentinel</code>
+---
+* Cloud Platform: Microsoft Azure (free trial & free services tier)
+* Compute: Ubuntu VM (changed size with sufficient CPU cores after resource constraint analysis)
+* Containerization: Docker – isolated MISP deployment, preserving VM for future multi-service use
+* Threat Intelligence Platform: MISP (open-source, GitHub misp-docker repo)
+* Integration Layer: Python script running alongside MISP (Azure Functions attempted but limited by trial subscription)
+* SIEM: Microsoft Sentinel
 
 # Implementation Steps
-
+---
 ## 1.Azure Infrastructure Provisioning
 
 - Used Azure CLI for all resource management
@@ -109,40 +109,31 @@ SIEM: Microsoft Sentinel</code>
  - Currently observing for matches
 
 # Key Technical Decisions & Rationale
+---
 <code>
     Docker on VM: Isolation + resource efficiency. Avoids dedicating a full VM to MISP, reduces Azure subscription costs.
-
     MISP (open-source): Free, well-documented, ideal for learning threat intelligence APIs and Python integration.
-
     Python script over Azure Functions: Free trial limitations prevented Function App deployment; script co-located on MISP server ensures reliability.
-
     Reduced event limit (500 → 200): Memory constraint mitigation on low-tier VM.
-
     Budget alerts: Proactive cost control after Azure credit anomaly.
 </code>
 
 # Current Status & Next Steps
+---
 <code>
     MISP instance running, feeds updating
-
     Sentinel receiving threat intelligence indicators
-
     KQL rule active for SSH brute-force detection
-
     Tuning indicator filters to improve detection rate
-
     Note: The analytics rule relies on specific threat intelligence feeds. Given the narrow targeting of those indicators, incident generation is not guaranteed under normal test conditions.
 </code>
 
 # Azure Services & Tools Used
+---
 <code>
     Virtual Machines (Ubuntu)
-
     Azure CLI
-
     Microsoft Sentinel (Log Analytics)
-
     Budget Alerts & Cost Management
-
     (Attempted) Azure Functions – trial limitations documented
 </code>
