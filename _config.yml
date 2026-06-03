@@ -1,15 +1,11 @@
-title: orangutan-803
+title: Orangutan-803
 description: "Satellite - jekyll blog theme"
 logo_img: "/assets/img/favicon.webp"
 profile_img: "/assets/img/monkey-business.gif"
 
 # Social Links
-email: example@gmail.com
 github_username: github
-twitter_username: twitter
-instagram_username: instagram
 linkedin_username: linkedin
-facebook_username: facebook
 
 # External API
 giscus_repo: "byanko55/jekyll-theme-satellite"
