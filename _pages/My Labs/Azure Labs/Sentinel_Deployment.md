@@ -50,7 +50,7 @@ Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both 
 <img src="https://github.com/user-attachments/assets/6f7bde31-9623-4b43-820e-8bc8ec8b99d2" />
 
 
-## 4. **Troubleshooting & Refinement using **
+## 4. **Troubleshooting & Refinement using AI**
 
 - Initial issue: No syslog data appeared in Sentinel after 20+ minutes (only heartbeat logs).
 
@@ -117,7 +117,7 @@ Result: Within 30 minutes, over 1,000 syslog events ingested, and the Syslog tab
 <img src="https://github.com/user-attachments/assets/37ca5064-5b3b-4a6f-a16a-6444d81e627b" />
 
 
-## Key Learnings
+# Key Learnings
 
 - Hands-on familiarity with Azure resource hierarchy (Resource Groups → VMs → Log Analytics → Sentinel).
 - Practical experience integrating a Linux VM with Sentinel via Syslog + AMA + DCR.
@@ -126,7 +126,7 @@ Result: Within 30 minutes, over 1,000 syslog events ingested, and the Syslog tab
 - Used Azure observability agent to query live logs and verify table creation, speeding up root-cause analysis.
 - Real-world observation: public SSH ports attract almost immediate intrusion attempts, underscoring the value of proactive monitoring.
 
-## Future Refinements
+# Future Refinements
 
 - Fine-tune DCR filters to exclude low‑severity or irrelevant syslog messages while retaining security‑relevant events.
 - Automate response actions (e.g., IP blocking) based on Sentinel alerts.
