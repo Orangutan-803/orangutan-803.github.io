@@ -12,7 +12,7 @@ thumbnail: "/assets/img/thumbnail/bricks.webp"
 
 -    Created an Ubuntu VM (`non-vulnerable-01`) with OpenSSH port 22 open to the internet, placed in resource group `orangutan-labs`.
 
-   !<img width="1623" height="734" alt="8" src="https://github.com/user-attachments/assets/342cf9d0-00a1-4bba-801a-9912fb5c574d" />
+   <img src="https://github.com/user-attachments/assets/342cf9d0-00a1-4bba-801a-9912fb5c574d" />
 
 
 -    Verified local SSH connectivity.
