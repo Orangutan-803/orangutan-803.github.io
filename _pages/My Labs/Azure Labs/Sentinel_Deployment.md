@@ -4,7 +4,7 @@ date: "2026-05-01"
 thumbnail: "/assets/img/thumbnail/bricks.webp"
 ---
 
-## **Objective:** Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both failed and successful) from a Linux Ubuntu VM exposed to the internet.
+# **Objective:** Deploy Azure Sentinel to collect, detect, and alert on SSH login attempts (both failed and successful) from a Linux Ubuntu VM exposed to the internet.
 
 ### Implementation Steps
 
