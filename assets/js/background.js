@@ -1,37 +1,36 @@
-// Optimized Deep Space / Pillars of Creation Style for 4K
+// Deep Space / Pillars of Creation Style
+// Slow glowing stars, white constellation lines, dark nebula backdrop
 
-// Performance tuning for high-res displays
-var maxCanvasWidth = 1920;            // Cap width to avoid rendering millions of pixels
-var particleCount = 60;               // Reduced for performance (was 80)
-var flareCount = 20;                  // Fewer flares
-var motion = 0.03;
-var tilt = 0.02;
-var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"];
-var particleSizeBase = 1.5;
-var particleSizeMultiplier = 0.6;
-var flareSizeBase = 120;              // Slightly smaller flares
-var flareSizeMultiplier = 160;
-var lineWidth = 1.0;                  // Thinner lines save some GPU
-var linkChance = 30;                  // Less frequent new links
+var particleCount = 80;              // more stars for depth
+var flareCount = 30;                // soft nebula glows
+var motion = 0.03;                  // very slow drift
+var tilt = 0.02;                    // subtle mouse tilt
+var colorPalette = ["#ffffff", "#e0e8ff", "#aaccff", "#88aaff", "#ffccaa"]; // white to pale blue/peach
+var particleSizeBase = 1.5;         // smaller stars
+var particleSizeMultiplier = 0.6;   // depth scaling
+var flareSizeBase = 150;            // big soft glows
+var flareSizeMultiplier = 200;
+var lineWidth = 1.2;
+var linkChance = 35;                // moderate chance to start a new constellation line
 var linkLengthMin = 3;
-var linkLengthMax = 4;                // Shorter links = less drawing
-var linkOpacity = 0.25;
-var linkFade = 180;
-var linkSpeed = 0.4;
+var linkLengthMax = 5;              // short, elegant constellations
+var linkOpacity = 0.25;             // very faint white
+var linkFade = 180;                 // long, slow fade out
+var linkSpeed = 0.4;               // very slow drawing speed
 var glareAngle = -45;
-var glareOpacityMultiplier = 0.04;    // Subtle glare, skip if still heavy
+var glareOpacityMultiplier = 0.05;  // subtle star glint
 var renderParticles = true;
-var renderParticleGlare = true;       // You can set false if still choppy
+var renderParticleGlare = true;
 var renderFlares = true;
 var renderLinks = true;
-var renderMesh = false;
+var renderMesh = false;             // no wireframe mesh
 var flicker = true;
-var flickerSmoothing = 50;
-var blurSize = 3;                     // Reduced from 6 – less blur work
+var flickerSmoothing = 50;          // very slow flicker (smoother, slower)
+var blurSize = 6;                   // soft glow
 var orbitTilt = true;
 var randomMotion = true;
 var noiseLength = 2000;
-var noiseStrength = 0.8;
+var noiseStrength = 0.8;            // gentle wandering
 
 var canvas = document.getElementById("stars");
 var context = canvas.getContext("2d");
@@ -52,8 +51,9 @@ var particles = [];
 var flares = [];
 var EPSILON = 1 / 1048576;
 
-// Set dark background with a simple fill (gradient every frame is cheap but we keep it)
+// Set dark background for the canvas (nebula-like)
 function setDarkBackground() {
+    // Create a radial gradient for nebula effect
     var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, "#03030f");
     gradient.addColorStop(0.5, "#060618");
@@ -171,24 +171,8 @@ function render() {
 }
 
 function resize() {
-    // Get the container size (the canvas element's parent or the window)
-    var container = canvas.parentElement;
-    var containerWidth = container ? container.clientWidth : window.innerWidth;
-    var containerHeight = container ? container.clientHeight : window.innerHeight;
-    
-    // Cap the canvas size to maxCanvasWidth while keeping aspect ratio of the container
-    var maxWidth = Math.min(containerWidth, maxCanvasWidth || 1920);
-    var aspectRatio = containerHeight / containerWidth;
-    var targetWidth = maxWidth;
-    var targetHeight = targetWidth * aspectRatio;
-    
-    // Set actual canvas pixel dimensions
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-    
-    // Ensure CSS matches the pixel dimensions (no scaling distortion)
-    canvas.style.width = targetWidth + 'px';
-    canvas.style.height = targetHeight + 'px';
+    canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+    canvas.height = canvas.width * (canvas.clientHeight / canvas.clientWidth);
 }
 
 function startLink(t, e) { links.push(new Link(t, e)); }
@@ -196,7 +180,7 @@ function startLink(t, e) { links.push(new Link(t, e)); }
 var Particle = function() {
     this.x = random(-0.1, 1.1, true);
     this.y = random(-0.1, 1.1, true);
-    this.z = random(0, 3.5);
+    this.z = random(0, 3.5);          // less extreme depth
     this.color = randomColor(colorPalette);
     this.opacity = random(0.3, 0.8, true);
     this.flicker = 0;
@@ -208,7 +192,7 @@ Particle.prototype.render = function() {
     var e = (this.z * particleSizeMultiplier + particleSizeBase) * (sizeRatio() / 1000);
     var i = this.opacity;
     if (flicker) {
-        var s = random(-0.2, 0.2, true);
+        var s = random(-0.2, 0.2, true);  // subtle flicker
         this.flicker += (s - this.flicker) / flickerSmoothing;
         if (this.flicker > 0.25) this.flicker = 0.25;
         if (this.flicker < -0.25) this.flicker = -0.25;
@@ -235,9 +219,10 @@ var Flare = function() {
     this.x = random(-0.2, 1.2, true);
     this.y = random(-0.2, 1.2, true);
     this.z = random(0, 1.5);
+    // Nebula colors: deep reds, cyans, purples
     var nebulaColors = ["#2a1a3a", "#1a2a4a", "#3a1a2a", "#1a3a2a", "#2a2a4a"];
     this.color = randomColor(nebulaColors);
-    this.opacity = random(0.005, 0.02, true);
+    this.opacity = random(0.005, 0.025, true);
 };
 
 Flare.prototype.render = function() {
@@ -336,7 +321,7 @@ Link.prototype.drawLine = function(t, e) {
         context.globalAlpha = e;
         context.beginPath();
         for (var i = 0; i < t.length - 1; i++) context.moveTo(t[i][0], t[i][1]), context.lineTo(t[i + 1][0], t[i + 1][1]);
-        context.strokeStyle = "#ffffff";
+        context.strokeStyle = "#ffffff";   // pure white constellation lines
         context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
