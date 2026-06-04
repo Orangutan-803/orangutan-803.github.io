@@ -171,14 +171,24 @@ function render() {
 }
 
 function resize() {
-    // Limit canvas size to maxCanvasWidth while keeping aspect ratio
-    var targetWidth = Math.min(window.innerWidth * (window.devicePixelRatio || 1), maxCanvasWidth);
-    var targetHeight = targetWidth * (canvas.clientHeight / canvas.clientWidth);
+    // Get the container size (the canvas element's parent or the window)
+    var container = canvas.parentElement;
+    var containerWidth = container ? container.clientWidth : window.innerWidth;
+    var containerHeight = container ? container.clientHeight : window.innerHeight;
+    
+    // Cap the canvas size to maxCanvasWidth while keeping aspect ratio of the container
+    var maxWidth = Math.min(containerWidth, maxCanvasWidth || 1920);
+    var aspectRatio = containerHeight / containerWidth;
+    var targetWidth = maxWidth;
+    var targetHeight = targetWidth * aspectRatio;
+    
+    // Set actual canvas pixel dimensions
     canvas.width = targetWidth;
     canvas.height = targetHeight;
-    // Adjust CSS to fill the container without stretching too much
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
+    
+    // Ensure CSS matches the pixel dimensions (no scaling distortion)
+    canvas.style.width = targetWidth + 'px';
+    canvas.style.height = targetHeight + 'px';
 }
 
 function startLink(t, e) { links.push(new Link(t, e)); }
