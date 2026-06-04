@@ -64,3 +64,22 @@ input::-webkit-search-results-decoration{
 @import "post";
 @import "search";
 @import "darkmode";
+
+/* --- Custom Styles for Navigation Bar & TOC Colors --- */
+
+/* Change colors for the Navigation Bar text (Light Mode) */
+.nav-item a,
+.nav-list-link span {
+  color: #dddddd; /* Replace with your hex code, e.g., #ff4500 for OrangeRed */
+}
+
+/* Change colors for the Table of Contents text (Light Mode) */
+.toc-list-item a {
+  color: #dddddd; /* Replace with your hex code, e.g., #4682b4 for SteelBlue */
+}
+
+/* Active link highlight in TOC (Optional)
+   The default color for the active section is IndianRed. You can change it here: */
+.is-active-link {
+  color: #333333 !important; /* '!important' is needed to override the default */
+}
