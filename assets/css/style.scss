@@ -100,17 +100,3 @@ input::-webkit-search-results-decoration{
   color: #ffccaa;
 }
 
-/* 3. Orange decals (background decoration for nav bar) */
-/* The theme likely uses a pseudo-element or background image.
-   To change the orange color, target the navigation bar's decorative elements. */
-.navbar,
-.nav-list,
-.nav-item::before,
-.nav-list-item::before,
-.site-nav {
-  /* Replace orange gradient or solid color with your preferred color */
-  background-color: #88aaff;    /* Solid background */
-  /* If using a gradient, override it: */
-  background-image: linear-gradient(135deg, #YOUR_DECAL_COLOR1, #YOUR_DECAL_COLOR2);
-}
-
