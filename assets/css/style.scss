@@ -83,3 +83,45 @@ input::-webkit-search-results-decoration{
 .is-active-link {
   color: #333333 !important; /* '!important' is needed to override the default */
 }
+
+/* --- Custom Colors for Extra Elements --- */
+
+/* 1. "Contents" heading above the Table of Contents */
+.toc-header {
+  color: #ffccaa;      /* Light mode color */
+}
+
+/* 2. Home button text (above profile image) */
+/* The home button is likely an <a> inside .site-header or a specific class */
+.site-header a,
+.home-link a,
+.navbar-brand a,          /* Common class for home button */
+.navbar .nav-item:first-child a {  /* Fallback: first nav item is often home */
+  color: #ffccaa;
+}
+
+/* 3. Orange decals (background decoration for nav bar) */
+/* The theme likely uses a pseudo-element or background image.
+   To change the orange color, target the navigation bar's decorative elements. */
+.navbar,
+.nav-list,
+.nav-item::before,
+.nav-list-item::before,
+.site-nav {
+  /* Replace orange gradient or solid color with your preferred color */
+  background-color: #88aaff;    /* Solid background */
+  /* If using a gradient, override it: */
+  background-image: linear-gradient(135deg, #YOUR_DECAL_COLOR1, #YOUR_DECAL_COLOR2);
+}
+
+/* 4. Navbar highlight color (hover or active state) */
+/* Change the color when you hover over or select a navigation link */
+.nav-item a:hover,
+.nav-list-link:hover span,
+.nav-item .active,
+.nav-list-item .active,
+.navbar a:focus {
+  color: #aaccff;      /* Text highlight color */
+  background-color: #ffccaa; /* Optional background highlight */
+  text-decoration: underline;            /* Or any other effect */
+}
