@@ -114,14 +114,3 @@ input::-webkit-search-results-decoration{
   background-image: linear-gradient(135deg, #YOUR_DECAL_COLOR1, #YOUR_DECAL_COLOR2);
 }
 
-/* 4. Navbar highlight color (hover or active state) */
-/* Change the color when you hover over or select a navigation link */
-.nav-item a:hover,
-.nav-list-link:hover span,
-.nav-item .active,
-.nav-list-item .active,
-.navbar a:focus {
-  color: #aaccff;      /* Text highlight color */
-  background-color: #ffccaa; /* Optional background highlight */
-  text-decoration: underline;            /* Or any other effect */
-}
