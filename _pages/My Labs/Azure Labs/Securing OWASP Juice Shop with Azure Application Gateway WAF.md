@@ -70,11 +70,13 @@ thumbnail: "assets/img/thumbnail/Juicy.webp"
 
 <img alt="8 0 Container still accessible through ct IP" src="https://github.com/user-attachments/assets/1f14d141-9033-43f8-83d9-e056bffa5569" />
 
-> Found out Azure doesn't allow moving existing ACI or Application Gateway resources to different VNets. 
+> Found out Azure doesn't allow moving existing ACI or Application Gateway resources to different VNets.
+
 <img alt="8 1 Consulting" src="https://github.com/user-attachments/assets/656eeaa0-3cd6-412a-9f59-c262e4e868fd" />
 <img alt="8 4 WAF Pvnet consultation" src="https://github.com/user-attachments/assets/84594d92-8f3a-4ae8-8825-067dde5b4a36" />
 
 > Recreated a new Juice Shop container inside a private VNet (no public exposure)
+
 <img alt="8 3 Creating new PVent" src="https://github.com/user-attachments/assets/42c62fc6-55e9-413f-b4f6-c0060e819d34" />
 
 > Diagnosed why I couldn't use the ACI's VNET for the new Application Gateway WAF with AI.
