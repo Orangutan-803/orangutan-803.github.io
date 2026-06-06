@@ -6,17 +6,17 @@ thumbnail: "assets/img/thumbnail/Juicy.webp"
 
 # Objective
 ---
-This lab simulates a real-world scenario: securing a deliberately vulnerable web app using Azure WAF, then further hardening it by moving a public-facing Azure Container Instance (ACI) into a private virtual network.
-
-Deployed the intentionally vulnerable OWASP Juice Shop on Azure Container Instances (ACI) to test and mitigate SQL injection attacks using Azure's Web Application Firewall (WAF).
+>This lab simulates a real-world scenario: securing a deliberately vulnerable web app using Azure WAF, then further hardening it by moving a public-facing >Azure Container Instance (ACI) into a private virtual network.
+>
+> Deployed the intentionally vulnerable OWASP Juice Shop on Azure Container Instances (ACI) to test and mitigate SQL injection attacks using Azure's Web >Application Firewall (WAF).
 
 # Initial Setup & Vulnerability Validation
 ---
-* Deployed Juice Shop container via ACI (public IP by default)
+> * Deployed Juice Shop container via ACI (public IP by default)
 
 <img src="https://github.com/user-attachments/assets/7033002b-75d3-4807-8c2c-73a964ca6641" />
 
-* Verified the instance and successfully executed a SQL injection attack, gaining admin access
+> * Verified the instance and successfully executed a SQL injection attack, gaining admin access
 
 <img src="https://github.com/user-attachments/assets/6f635871-16f0-47bc-9c8d-5f00e0caf8a3" />
 <img src="https://github.com/user-attachments/assets/3860e81f-093e-4a39-83f4-9b7a30a9cdb3" />
