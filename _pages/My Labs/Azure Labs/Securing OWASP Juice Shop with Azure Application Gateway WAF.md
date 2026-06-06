@@ -98,9 +98,11 @@ thumbnail: "assets/img/thumbnail/Juicy.webp"
 > Juice Shop is not publicly reachable – all traffic must go through the WAF
 
 > SQL injection attempts are blocked (403)
+
 <img alt="9 0 Success" src="https://github.com/user-attachments/assets/36765708-ed2f-4f31-af8a-7356de7f43e9" />
 
 > WAF logs show detected attacks in real time
+
 <img alt="10 1 SQL match" src="https://github.com/user-attachments/assets/38858453-987e-4c86-ac77-420ca902d6bf" />
 
 # Key takeaway
